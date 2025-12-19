@@ -19,7 +19,6 @@ static void BM_ExistingHybridSort_Reverse100k(benchmark::State& state)
         std::vector<double> data = base;
         ::sort(data);
         benchmark::DoNotOptimize(data);
-        benchmark::ClobberMemory();
     }
     state.SetLabel("existing-threshold=16, N=100000");
 }
