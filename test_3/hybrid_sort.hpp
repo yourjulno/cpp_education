@@ -2,14 +2,9 @@
 
 #include <vector>
 #include <cstddef>
-
 #include <algorithm>
 #include <cassert>
-#include <numeric>
 #include <utility>
-#include <vector>
-#include <iostream>
-
 
 template <typename T>
 void order(std::vector<T> & vector, std::size_t left, std::size_t right)
@@ -69,9 +64,9 @@ std::size_t hoare_partition(std::vector<T> & vector, std::size_t left, std::size
 }
 
 template <typename T>
-void split(std::vector<T> & vector, std::size_t left, std::size_t right)
+void split_with_threshold(std::vector<T> & vector, std::size_t left, std::size_t right, std::size_t threshold)
 {
-    if (right - left <= 16)
+    if (right - left <= threshold)
     {
         order(vector, left, right);
     }
@@ -79,8 +74,8 @@ void split(std::vector<T> & vector, std::size_t left, std::size_t right)
     {
         auto partition_index = hoare_partition(vector, left, right);
 
-        split(vector, left, partition_index);
-        split(vector, partition_index, right);
+        split_with_threshold(vector, left, partition_index, threshold);
+        split_with_threshold(vector, partition_index, right, threshold);
     }
 }
 
@@ -88,6 +83,15 @@ template <typename T>
 void sort(std::vector<T> & vector)
 {
     if (vector.size() > 1) {
-        split(vector, 0, vector.size());
+        constexpr std::size_t DEFAULT_THRESHOLD = 16;
+        split_with_threshold(vector, 0, vector.size(), DEFAULT_THRESHOLD);
+    }
+}
+
+template <typename T>
+void sort_with_threshold(std::vector<T> & vector, std::size_t threshold)
+{
+    if (vector.size() > 1) {
+        split_with_threshold(vector, 0, vector.size(), threshold);
     }
 }
