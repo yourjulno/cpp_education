@@ -158,17 +158,17 @@ int main(int argc, char** argv)
         if (e.old_c != 0) ratios.push_back(e.ratio);
     }
 
-    const auto stats = vector_growth::exp::compute_ratio_stats(ratios);
+    const auto [min, max, mean, median] = vector_growth::exp::compute_ratio_stats(ratios);
     if (ratios.empty()) 
     {
         std::cout << "  Not enough data.\n";
         return 0;
     }
 
-    std::cout << "  min    = " << std::fixed << std::setprecision(6) << stats.min << "\n";
-    std::cout << "  max    = " << std::fixed << std::setprecision(6) << stats.max << "\n";
-    std::cout << "  mean   = " << std::fixed << std::setprecision(6) << stats.mean << "\n";
-    std::cout << "  median = " << std::fixed << std::setprecision(6) << stats.median << "\n\n";
+    std::cout << "  min    = " << std::fixed << std::setprecision(6) << min << "\n";
+    std::cout << "  max    = " << std::fixed << std::setprecision(6) << max << "\n";
+    std::cout << "  mean   = " << std::fixed << std::setprecision(6) << mean << "\n";
+    std::cout << "  median = " << std::fixed << std::setprecision(6) << median << "\n\n";
 
     return 0;
 }
