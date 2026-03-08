@@ -39,7 +39,6 @@ public:
 
         if (t < m_min)
         {
-            // restore previous min
             m_min = static_cast<T>(T(2) * m_min - t);
         }
 
