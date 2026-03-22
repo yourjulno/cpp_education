@@ -1,20 +1,48 @@
 project('cpp_education', 'cpp',
-  version: '1.0.0',
-  default_options: [
-    'warning_level=3',
-    'cpp_std=c++23',
-    'default_library=static',
-    'b_pie=false',
-  ],
+        version: '1.0.0',
+        default_options: [
+          'warning_level=3',
+          'cpp_std=c++23',
+          'default_library=static',
+          'b_pie=false',
+        ],
 )
 
 fs = import('fs')
-
-# зависимости для gtest
-gtest_proj = subproject('gtest')
-gtest_dep = gtest_proj.get_variable('gtest_dep')
+cmake = import('cmake')
 
 threads_dep = dependency('threads', required: false)
+
+# ---- googletest (CMake subproject) ----
+gtest_opts = cmake.subproject_options()
+gtest_opts.add_cmake_defines({
+                               'BUILD_GTEST': 'ON',
+                               'BUILD_GMOCK': 'OFF',
+                               'INSTALL_GTEST': 'OFF',
+                               'BUILD_TESTING': 'OFF',
+                             })
+
+gtest_sp = cmake.subproject('gtest', options: gtest_opts)
+gtest_dep = gtest_sp.dependency('gtest')
+
+# ---- google benchmark (CMake subproject) ----
+bench_opts = cmake.subproject_options()
+bench_opts.add_cmake_defines({
+                               'BENCHMARK_ENABLE_TESTING': 'OFF',
+                               'BENCHMARK_ENABLE_GTEST_TESTS': 'OFF',
+                               'BENCHMARK_DOWNLOAD_DEPENDENCIES': 'ON',
+                             })
+
+bench_sp = cmake.subproject('google-benchmark', options: bench_opts)
+benchmark_dep = bench_sp.dependency('benchmark')
+
+# ---- boost ----
+boost_dep = dependency('boost', required: false)
+
+if not boost_dep.found()
+  boost_proj = subproject('boost')
+  boost_dep = boost_proj.get_variable('boost_dep')
+endif
 
 source_dirs = [
   '2nd_semester',
@@ -40,14 +68,20 @@ foreach d : source_dirs
     continue
   endif
 
-  # bench.cpp (без main) -> библиотека, если есть
   bench_path = d + '/bench.cpp'
-  have_bench = fs.exists(bench_path)
+  have_bench_support = fs.exists(bench_path)
 
-  bench_lib = []
-  if have_bench
-    bench_lib = static_library(d + '_bench_support',
+  bench_support_lib = []
+  if have_bench_support
+    bench_support_deps = [boost_dep, benchmark_dep]
+    if threads_dep.found()
+      bench_support_deps += [threads_dep]
+    endif
+
+    bench_support_lib = static_library(
+      d + '_bench_support',
       bench_path,
+      dependencies: bench_support_deps,
       install: false
     )
   endif
@@ -59,7 +93,7 @@ foreach d : source_dirs
 
     filename = f.split('/')[-1]
 
-    # bench.cpp сам по себе не executable
+    # bench.cpp не собираем как отдельный executable
     if filename == 'bench.cpp'
       continue
     endif
@@ -67,27 +101,35 @@ foreach d : source_dirs
     base = filename.split('.cpp')[0]
     target = d + '_' + base
 
+    is_test = (d == 'tests') or filename.endswith('_test.cpp')
+    is_bench = filename.endswith('_bench.cpp')
+
+    deps = [boost_dep]
     link_with_libs = []
-    deps = []
 
-    # если это *_bench.cpp и есть bench.cpp -> подлинкуем
-    if have_bench and filename.endswith('_bench.cpp')
-      link_with_libs = [bench_lib]
-    endif
-
-    # если это тест (папка tests ИЛИ имя *_test.cpp) -> линкуем gtest
-    if d == 'tests' or filename.endswith('_test.cpp')
-      if gtest_dep.found()
-        deps += [gtest_dep]
-      endif
+    if is_test
+      deps += [gtest_dep]
       if threads_dep.found()
         deps += [threads_dep]
       endif
     endif
 
-    executable(target,
+    if is_bench
+      deps += [benchmark_dep]
+      if threads_dep.found()
+        deps += [threads_dep]
+      endif
+
+      if have_bench_support
+        link_with_libs += [bench_support_lib]
+      endif
+    endif
+
+    executable(
+      target,
       f,
-      dependencies: [gtest_dep, dependency('threads')],
+      dependencies: deps,
+      link_with: link_with_libs,
       install: false
     )
   endforeach
