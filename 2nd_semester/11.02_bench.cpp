@@ -1,6 +1,3 @@
-// file: call_overhead_bench.cpp
-// CMake builds below.
-
 #include <benchmark/benchmark.h>
 
 #include <functional>
