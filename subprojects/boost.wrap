@@ -1,0 +1,6 @@
+[wrap-file]
+directory = boost-1.84.0
+source_url = https://archives.boost.io/release/1.84.0/source/boost_1_84_0.tar.gz
+source_filename = boost_1_84_0.tar.gz
+source_hash = 2qvJattZlR6L3uQ7kI5tPf4fQ8N3oM0S0mW0Y1lM8r0=
+patch_directory = boost
