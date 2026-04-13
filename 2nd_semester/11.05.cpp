@@ -318,6 +318,7 @@ int main()
             | std::views::filter([](std::size_t i) { return i % 2 == 0; })
             | std::views::transform([&v](std::size_t i) { return v[i]; });
 
+
         assert(make_vector(strided) == std::vector<int>({1, 3, 5, 7}));
     }
 
