@@ -312,7 +312,11 @@ int main()
     // -------------------------------------------------------------------------
     {
         std::vector<int> v = {1, 2, 3, 4, 5, 6, 7};
-        auto strided = v | std::views::stride(2);
+
+        auto strided =
+            std::views::iota(std::size_t{0}, v.size())
+            | std::views::filter([](std::size_t i) { return i % 2 == 0; })
+            | std::views::transform([&v](std::size_t i) { return v[i]; });
 
         assert(make_vector(strided) == std::vector<int>({1, 3, 5, 7}));
     }

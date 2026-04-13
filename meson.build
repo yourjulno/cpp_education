@@ -37,7 +37,7 @@ bench_sp = cmake.subproject('google-benchmark', options: bench_opts)
 benchmark_dep = bench_sp.dependency('benchmark')
 
 # ---- boost ----
-boost_dep = dependency('boost', required: false)
+boost_dep = dependency('boost', modules : ['graph'], required : true)
 
 if not boost_dep.found()
   boost_proj = subproject('boost')
