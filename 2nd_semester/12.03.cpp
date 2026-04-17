@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-std::string_view longest_palindrome(std::string_view text)
+std::string_view longest_palindrome(const std::string_view text)
 {
     const std::size_t n = text.size();
 
