@@ -1,6 +1,3 @@
-// main.cpp
-
-#include <cctype>
 #include <cmath>
 #include <fstream>
 #include <iostream>
