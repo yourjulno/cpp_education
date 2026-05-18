@@ -4,6 +4,7 @@
 #include <thread>
 #include <type_traits>
 #include <vector>
+#include <numeric>
 
 template <std::ranges::view V, typename F>
 class Task
@@ -70,7 +71,7 @@ int main()
 
 //  ----------------------------------------------------
 
-    std::ranges::iota(vector, 1);
+    std::iota(vector.begin(), vector.end(), 1);
 
 //  ----------------------------------------------------
 
